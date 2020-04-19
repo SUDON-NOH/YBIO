@@ -62,4 +62,3 @@ class excel_pd:
         self.file_list = os.listdir(self.path)
         print(self.load,' 폴더에 있는 파일 목록입니다./n', self.file_list)
         return self.file_list
-
