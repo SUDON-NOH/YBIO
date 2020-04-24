@@ -1,0 +1,50 @@
+DROP TABLE IF EXISTS customer, QUOTATION, CLASS_SUB;
+
+CREATE TABLE customer(
+
+	C_CODE		 CHAR(5)	NOT NULL UNIQUE,					-- C_CODE
+	NUM 			 INT AUTO_INCREMENT NOT NULL UNIQUE,	-- 자동으로 NUM 생성
+	COMPANY 		 VARCHAR(50) NOT NULL,						-- 기관명
+	DEPARTMENT 	 VARCHAR(50) NULL,							-- 부서
+	CUSTOMER 	 VARCHAR(10) NOT NULL,						-- 의뢰인
+	TITLE			 VARCHAR(10) NOT NULL,						-- 호칭
+	DIRECTOR		 VARCHAR(10) NULL, 							-- 책임자
+	CATEGORY		 VARCHAR(5) NOT NULL,						-- 기관목록
+	ADDRESS		 VARCHAR(200) NULL,							-- 기관주소
+	TEL			 VARCHAR(20) NULL,							-- 전화
+	PHONE			 VARCHAR(20) NULL,							-- 핸드폰
+	E_MAIL		 VARCHAR(50) NULL,							-- 이메일
+	
+		CONSTRAINT PK_customer_company_customer			-- COMPANY와 CUSTOMER를 동시에 PRIMARY KEY로 지정해서 중복이 되지 않도록 지정
+			PRIMARY KEY (COMPANY, CUSTOMER)
+
+	); 
+	
+
+CREATE TABLE CLASS_SUB(												-- 견적서의 SUB 시트
+	CLASS			VARCHAR(30) NOT NULL,							-- CLASS (EX. RECOMBINANT PROTEIN, ANTIBODY, HYBRIDOMA ...)
+	SUB			VARCHAR(30) NOT NULL,							-- SUB (EX. 1ST-PURI, 2ND-PURI, ENDOTOXIN ...)
+	
+	CONSTRAINT PK_CLASS_SUB
+		PRIMARY KEY (CLASS, SUB)
+		);
+
+
+CREATE TABLE QUOTATION(														-- 견적서 테이블
+	NUM			 	INT AUTO_INCREMENT NOT NULL PRIMARY KEY,		-- 견적서 번호
+	C_CODE		 	CHAR(5)	NOT NULL,									-- C_CODE
+	N_NUMBER		 	VARCHAR(20) NOT NULL,								-- 연도 + N + NUM (EX. 2020-N001)
+	Q_DATE		 	DATE,														-- 견적서 발행 날짜
+	CLASS			 	VARCHAR(20) NOT NULL,								-- TYPE에 따라 구분
+	PROD_NAME		VARCHAR(100) NOT NULL,								-- 품명
+	PROD_FULL_NAME	LONGTEXT NOT NULL,									-- CLASS / PROD_NAME / SUB 이 합쳐진 값
+	SUB			 	VARCHAR(30) NOT NULL,								-- CLASS에 따라오는 구체적인 서비스
+	SIZE			 	CHAR(10) NOT NULL,									-- 규격
+	QUANTITY			INT NOT NULL,											-- 수량
+	PRICE				INT NOT NULL,											-- 단가
+	AD_PRICE			INT NOT NULL,											-- 공급액
+	Q_STATUS			CHAR(10) NOT NULL,									-- 계약상태 (견적, 계약, 취소, 진행)
+	
+	CONSTRAINT FK_QUOTATION_CLASS_CLASS FOREIGN KEY(CLASS) REFERENCES CLASS_SUB(CLASS)
+	);
+	
