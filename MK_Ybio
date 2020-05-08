@@ -80,3 +80,4 @@ class Marketing_ybio:
         x = str(len(list))
 #        for i in list:
 #            for a, b in zip(columns, i):
+
