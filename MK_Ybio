@@ -1,0 +1,82 @@
+import pandas as pd
+import openpyxl
+
+# import MK_Ybio
+#
+# a = MK_Ybio.Marketing_ybio()
+#
+# z = a.open_MK_IN()
+# x = a.add_c_code()
+
+class Marketing_ybio:
+
+    def __init__(self):
+        self.c_code_columns = [ 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+        self.MK_In_columns = ["F", "G", "H", "I", "J" , "K", "L", "M", "N", "O", "P", "Q"]
+
+    def open_MK_IN(self):
+        # 입력하기 위한 데이터 정제
+        self.MK_INSERT = pd.read_excel("Z:/ANRT/SIT/CENTER/마케팅/마케팅_입력.xlsx", sheet_name="입력")
+        self.MK_INSERT = self.MK_INSERT.drop(self.MK_INSERT.index[0:4])
+        self.MK_INSERT = self.MK_INSERT.drop(self.MK_INSERT.columns[[0, 1, 2, 3, 4]], axis="columns")
+        # DATAFRAME 으로 변환
+
+    # c_code 가 없는 것들은 user_database에 c_code를 입력
+    def add_c_code(self):
+
+        # c_code 가 공백인 행들 추출
+        non_c_code = self.MK_INSERT[self.MK_INSERT['Unnamed: 5'].isnull()]
+        md_non_c_code = non_c_code[non_c_code.columns[1:3]]
+        md_non_c_code = md_non_c_code.values.tolist()
+
+        # c_code의 마지막 번호 찾기
+        df_code = pd.read_excel("Z:/ANRT/SIT/CENTER/Database/USER_DATABASE.xlsx", sheet_name= 'DB')
+        df_code = df_code.drop(df_code.columns[[0, 4, 5, 6, 7, 8, 9, 10]], axis = 'columns')
+        df_code = df_code.dropna(axis=0)
+        df_code = df_code[['C_CODE']][-1:].values.tolist()
+        df_code = df_code[0][0]
+        df_code = int(df_code[1:5])
+
+        # list에 c_code를 추가
+        x = df_code + 1
+        for i in range(len(md_non_c_code)):
+            x = str(x)
+            x = 'C' + x.zfill(4)
+            md_non_c_code[i].insert(2, x)
+            x = int(x[1:5])
+            x += 1
+
+        # md_non_c_code 는 c_code가 들어간 list
+
+        # 파일에 넣기
+        USER_DB = openpyxl.load_workbook("Z:/ANRT/SIT/CENTER/Database/USER_DATABASE.xlsx")
+        USER_DB_sheet = USER_DB["DB"]
+
+        MK_INSERT_CODE= openpyxl.load_workbook('Z:/ANRT/SIT/CENTER/마케팅/마케팅_입력.xlsx')
+        MK_INSERT_sheet = MK_INSERT_CODE["USER"]
+
+        # row 를 C_CODE에 따라서 순차적으로 입력
+        row = df_code + 2
+        # column 을 B열 C열 D열만으로 지정
+        code_list = self.c_code_columns[0:3]
+
+        for i in md_non_c_code:
+            for a, b in zip(code_list, i):
+                row = str(row)
+                place = a + row
+                USER_DB_sheet[place] = b
+                MK_INSERT_sheet[place] = b
+                if a == 'D':
+                    row = int(row)
+                    row += 1
+
+        MK_INSERT_CODE.save('Z:/ANRT/SIT/CENTER/마케팅/마케팅_입력.xlsx')
+        USER_DB.save("Z:/ANRT/SIT/CENTER/Database/USER_DATABASE.xlsx")
+
+    def first_step(self):
+
+        list = self.MK_INSERT.values.tolist()
+
+        x = str(len(list))
+#        for i in list:
+#            for a, b in zip(columns, i):
